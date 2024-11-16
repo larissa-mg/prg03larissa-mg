@@ -90,43 +90,43 @@ public class Conta {
         System.out.println("Status: " + this.isStatus());
     }
     
-    public int getNumConta() {
+    private int getNumConta() {
         return numConta;
     }
 
-    public void setNumConta(int numConta) {
+    private void setNumConta(int numConta) {
         this.numConta = numConta;
     }
 
-    public String getTipo() {
+    private String getTipo() {
         return tipo;
     }
 
-    public void setTipo(String tipo) {
+    private void setTipo(String tipo) {
         this.tipo = tipo;
     }
 
-    public String getDono() {
+    private String getDono() {
         return dono;
     }
 
-    public void setDono(String dono) {
+    private void setDono(String dono) {
         this.dono = dono;
     }
 
-    public double getSaldo() {
+    private double getSaldo() {
         return saldo;
     }
 
-    public void setSaldo(double saldo) {
+    private void setSaldo(double saldo) {
         this.saldo = saldo;
     }
 
-    public boolean isStatus() {
+    private boolean isStatus() {
         return status;
     }
 
-    public void setStatus(boolean status) {
+    private void setStatus(boolean status) {
         this.status = status;
     }
 
