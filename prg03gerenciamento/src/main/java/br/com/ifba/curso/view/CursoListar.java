@@ -1,11 +1,12 @@
 package br.com.ifba.curso.view;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import javax.swing.JOptionPane;
-
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -18,6 +19,7 @@ public class CursoListar extends javax.swing.JFrame {
      */
     public CursoListar() {
         initComponents();
+        carregarTabela();
     }
 
     /**
@@ -33,8 +35,8 @@ public class CursoListar extends javax.swing.JFrame {
         tblListaCurso = new javax.swing.JTable();
         txtBuscar = new javax.swing.JTextField();
         btnEditarCurso = new javax.swing.JButton();
-        btnCadastrarCurso = new javax.swing.JButton();
         btnRemoverCurso = new javax.swing.JButton();
+        btnCadastrarCurso = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -42,9 +44,8 @@ public class CursoListar extends javax.swing.JFrame {
         tblListaCurso.setBorder(javax.swing.BorderFactory.createCompoundBorder());
         tblListaCurso.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {"Curso 1", "01", "True"},
-                {"Curso 2", "02", "False"},
-                {null, null, null},
+                {"", "", ""},
+                {"", "", ""},
                 {null, null, null},
                 {null, null, null},
                 {null, null, null},
@@ -66,15 +67,11 @@ public class CursoListar extends javax.swing.JFrame {
                 txtBuscarActionPerformed(evt);
             }
         });
-        getContentPane().add(txtBuscar, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 20, 440, 50));
+        getContentPane().add(txtBuscar, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 20, 380, 50));
 
         btnEditarCurso.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnEditarCurso.setText("Editar");
         getContentPane().add(btnEditarCurso, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 20, 100, 50));
-
-        btnCadastrarCurso.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        btnCadastrarCurso.setText("+");
-        getContentPane().add(btnCadastrarCurso, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 20, 60, 50));
 
         btnRemoverCurso.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnRemoverCurso.setText("Remover");
@@ -83,7 +80,16 @@ public class CursoListar extends javax.swing.JFrame {
                 btnRemoverCursoActionPerformed(evt);
             }
         });
-        getContentPane().add(btnRemoverCurso, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 20, 100, 50));
+        getContentPane().add(btnRemoverCurso, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 20, 100, 50));
+
+        btnCadastrarCurso.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnCadastrarCurso.setText("Cadastrar");
+        btnCadastrarCurso.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCadastrarCursoActionPerformed(evt);
+            }
+        });
+        getContentPane().add(btnCadastrarCurso, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 20, 100, 50));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -94,14 +100,63 @@ public class CursoListar extends javax.swing.JFrame {
 
     private void btnRemoverCursoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoverCursoActionPerformed
         //Abre janela de confirmação para remoção do curso selecionado
-        JOptionPane.showConfirmDialog(
+        int resposta = JOptionPane.showConfirmDialog(
                 null, 
                 "Deseja apagar o curso selecionado?", 
                 "Remover curso",
                 JOptionPane.YES_NO_OPTION
         );
+        
+        //Caso a resposta seja sim, remove o curso do banco de dados
+        if(resposta == JOptionPane.YES_OPTION) {
+            
+        }
     }//GEN-LAST:event_btnRemoverCursoActionPerformed
 
+    private void btnCadastrarCursoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCadastrarCursoActionPerformed
+        //Abre a janela de cadastro do curso ao clicar no botão btnCadastrarCurso
+        CursoCadastrar cursoCadastrar = new CursoCadastrar();
+        cursoCadastrar.setVisible(true);
+    }//GEN-LAST:event_btnCadastrarCursoActionPerformed
+
+    private void carregarTabela() {
+        String url = "jdbc:mysql://localhost:3306/gerenciamento_curso";
+        String usuario = "root";
+        String senha = "01100";
+        
+        //tblListaCurso.setEnabled(false);
+        DefaultTableModel tabela = (DefaultTableModel) tblListaCurso.getModel();
+        tabela.setNumRows(0);
+        
+        tblListaCurso.getColumnModel().getColumn(0);
+        tblListaCurso.getColumnModel().getColumn(1);
+        tblListaCurso.getColumnModel().getColumn(2);
+        
+        try {
+            Connection conexao = DriverManager.getConnection(url, usuario, senha);
+            PreparedStatement pstm;
+            ResultSet rs;
+            
+            pstm = conexao.prepareStatement("select * from cursos;");
+            rs = pstm.executeQuery();
+            
+            while(rs.next()) {
+                tabela.addRow(new Object[]{
+                    rs.getString(4),
+                    rs.getString(3),
+                    rs.getString(2)
+                });
+            }
+            
+            rs.close();
+            pstm.close();
+            conexao.close();
+            
+        } catch(SQLException ErroListar) {
+            JOptionPane.showMessageDialog(null, "Erro ao carregar a tabela: " + ErroListar, "ERRO", JOptionPane.ERROR);
+        }   
+    }
+    
     /**
      * @param args the command line arguments
      */
