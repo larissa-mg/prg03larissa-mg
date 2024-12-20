@@ -18,10 +18,9 @@ public class CursoSave {
             entityManagerFactory.createEntityManager();
     
     public void save(Curso curso) {
-        //curso.setId(1L);
-        curso.setNome("Análise e Desenvolvimento de Sistemas");
-        curso.setAtivo(true);
-        curso.setCodigoCurso("ADS");
+        curso.setNome(curso.getNome());
+        curso.setAtivo(curso.isAtivo());
+        curso.setCodigoCurso(curso.getCodigoCurso());
         
         entityManager.getTransaction().begin();
         entityManager.persist(curso);
@@ -30,19 +29,4 @@ public class CursoSave {
         entityManager.close();
         entityManagerFactory.close();
     }
-    
-    /*public static void main(String[] args) {
-        Curso curso = new Curso();
-        //curso.setId(1L);
-        curso.setNome("Análise e Desenvolvimento de Sistemas");
-        curso.setAtivo(true);
-        curso.setCodigoCurso("ADS");
-        
-        entityManager.getTransaction().begin();
-        entityManager.persist(curso);
-        entityManager.getTransaction().commit();
-        
-        entityManager.close();
-        entityManagerFactory.close();
-    }*/
 }

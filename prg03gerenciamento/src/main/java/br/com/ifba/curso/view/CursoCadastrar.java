@@ -4,10 +4,8 @@
  */
 package br.com.ifba.curso.view;
 
+import br.com.ifba.CursoSave;
 import br.com.ifba.curso.entity.Curso;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
 
 /**
  *
@@ -69,8 +67,6 @@ public class CursoCadastrar extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private final static EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("gerenciamento_curso");
-    private final static EntityManager entityManager = entityManagerFactory.createEntityManager();
     
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
         //Adiciona o novo curso no banco de dados
@@ -78,14 +74,10 @@ public class CursoCadastrar extends javax.swing.JFrame {
         
         curso.setNome(txtNome.getText());
         curso.setCodigoCurso(txtCodCurso.getText());
-        curso.setAtivo(true);
+        curso.setAtivo(Boolean.parseBoolean(txtAtivo.getText()));
         
-        entityManager.getTransaction().begin();
-        entityManager.persist(curso);
-        entityManager.getTransaction().commit();
-            
-        entityManager.close();
-        entityManagerFactory.close();
+        CursoSave cursoSave = new CursoSave();
+        cursoSave.save(curso);
     }//GEN-LAST:event_btnSalvarActionPerformed
 
     /**
