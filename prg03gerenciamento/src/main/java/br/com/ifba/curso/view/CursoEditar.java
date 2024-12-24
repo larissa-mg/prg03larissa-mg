@@ -8,16 +8,20 @@ import br.com.ifba.curso.entity.Curso;
  *
  * @author larissa
  */
-public class CursoCadastrar extends javax.swing.JFrame {
+public class CursoEditar extends javax.swing.JFrame {
     private final CursoListar cursoListar;
+    private final Long id;
     
     /**
-     * Creates new form CursoCadastrar
+     * Creates new form CursoEditar
      * @param cursoListar
+     * @param id
      */
-    public CursoCadastrar(CursoListar cursoListar) {
+    public CursoEditar(CursoListar cursoListar, Long id) {
         this.cursoListar = cursoListar;
+        this.id = id;
         initComponents();
+        carregarCurso();
     }
 
     /**
@@ -34,7 +38,7 @@ public class CursoCadastrar extends javax.swing.JFrame {
         lblNome = new javax.swing.JLabel();
         txtNome = new javax.swing.JTextField();
         txtCodCurso = new javax.swing.JTextField();
-        btnSalvar = new javax.swing.JButton();
+        btnEditar = new javax.swing.JButton();
         comboStatus = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -54,37 +58,51 @@ public class CursoCadastrar extends javax.swing.JFrame {
         getContentPane().add(txtNome, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 40, 240, -1));
         getContentPane().add(txtCodCurso, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 100, 240, -1));
 
-        btnSalvar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnSalvar.setText("Salvar");
-        btnSalvar.addActionListener(new java.awt.event.ActionListener() {
+        btnEditar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnEditar.setText("Editar");
+        btnEditar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnSalvarActionPerformed(evt);
+                btnEditarActionPerformed(evt);
             }
         });
-        getContentPane().add(btnSalvar, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 240, 120, 50));
+        getContentPane().add(btnEditar, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 240, 120, 50));
 
         comboStatus.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ATIVO", "INATIVO" }));
         getContentPane().add(comboStatus, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 160, 240, -1));
 
-        setSize(new java.awt.Dimension(496, 350));
+        setSize(new java.awt.Dimension(459, 354));
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
-        //Insere as informações da tela de cadastro no curso
+    //Caarrega as informações do curso a ser editado ao abrir a tela
+    private void carregarCurso() {
+        Curso curso;
+        CursoIDao c = new CursoDao();
+        curso = c.findById(id);
+        
+        txtNome.setText(curso.getNome());
+        txtCodCurso.setText(curso.getCodigoCurso());
+        comboStatus.setSelectedItem(curso.isAtivo() ? "ATIVO" : "INATIVO");
+    }
+    
+    private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
+        //Insere as informações da tela de edição no curso
         Curso curso = new Curso();
         curso.setNome(txtNome.getText());
         curso.setCodigoCurso(txtCodCurso.getText());
+        curso.setId(id);
+
+        //Verifica a opção escolhida pelo usuário e coloca o curso como ativo ou inativo
         curso.setAtivo((comboStatus.getSelectedItem() == "ATIVO"));
-        
-        //Salva as informações do curso no banco de dados
+
+        //Salva a edição no banco de dados
         CursoIDao cursoDao = new CursoDao();
-        cursoDao.save(curso);
-        
-        //Atualiza a tabela de cursos e fecha a tela de cadastro
+        cursoDao.update(curso);
+
+        //Atualiza a tabela de cursos e fecha a tela de edição
         cursoListar.carregarTabela();
         this.dispose();
-    }//GEN-LAST:event_btnSalvarActionPerformed
+    }//GEN-LAST:event_btnEditarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -103,20 +121,20 @@ public class CursoCadastrar extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(CursoCadastrar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(CursoEditar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(CursoCadastrar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(CursoEditar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(CursoCadastrar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(CursoEditar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(CursoCadastrar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(CursoEditar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-        
+
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnSalvar;
+    private javax.swing.JButton btnEditar;
     private javax.swing.JComboBox<String> comboStatus;
     private javax.swing.JLabel lblCodCurso;
     private javax.swing.JLabel lblNome;

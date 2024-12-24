@@ -1,10 +1,8 @@
 package br.com.ifba.curso.view;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import br.com.ifba.curso.dao.CursoDao;
+import br.com.ifba.curso.dao.CursoIDao;
+import br.com.ifba.curso.entity.Curso;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -13,7 +11,7 @@ import javax.swing.table.DefaultTableModel;
  * @author larissa
  */
 public class CursoListar extends javax.swing.JFrame {
-
+    
     /**
      * Creates new form CursoListar
      */
@@ -39,38 +37,55 @@ public class CursoListar extends javax.swing.JFrame {
         btnCadastrarCurso = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setLocation(new java.awt.Point(0, 0));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         tblListaCurso.setBorder(javax.swing.BorderFactory.createCompoundBorder());
         tblListaCurso.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {"", "", ""},
-                {"", "", ""},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+                {"", null, "", ""},
+                {"", null, "", ""},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
             },
             new String [] {
-                "Nome", "Código do curso", "Ativo"
+                "Nome", "ID", "Código do curso", "Ativo"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tblListaCurso.setName(""); // NOI18N
         tblListaCurso.setRowHeight(40);
+        tblListaCurso.setSelectionMode(0);
         tblListaCurso.setShowHorizontalLines(true);
         tblListaCurso.setShowVerticalLines(true);
+        tblListaCurso.getTableHeader().setReorderingAllowed(false);
         scrollPane.setViewportView(tblListaCurso);
 
         getContentPane().add(scrollPane, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 90, 760, 270));
 
-        txtBuscar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtBuscarActionPerformed(evt);
+        txtBuscar.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtBuscarKeyReleased(evt);
             }
         });
         getContentPane().add(txtBuscar, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 20, 380, 50));
 
         btnEditarCurso.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnEditarCurso.setText("Editar");
+        btnEditarCurso.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditarCursoActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnEditarCurso, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 20, 100, 50));
 
         btnRemoverCurso.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -80,7 +95,7 @@ public class CursoListar extends javax.swing.JFrame {
                 btnRemoverCursoActionPerformed(evt);
             }
         });
-        getContentPane().add(btnRemoverCurso, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 20, 100, 50));
+        getContentPane().add(btnRemoverCurso, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 20, 100, 50));
 
         btnCadastrarCurso.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnCadastrarCurso.setText("Cadastrar");
@@ -89,72 +104,116 @@ public class CursoListar extends javax.swing.JFrame {
                 btnCadastrarCursoActionPerformed(evt);
             }
         });
-        getContentPane().add(btnCadastrarCurso, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 20, 100, 50));
+        getContentPane().add(btnCadastrarCurso, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 20, 100, 50));
 
-        pack();
+        setSize(new java.awt.Dimension(840, 422));
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void txtBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBuscarActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtBuscarActionPerformed
-
     private void btnRemoverCursoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoverCursoActionPerformed
-        //Abre janela de confirmação para remoção do curso selecionado
-        int resposta = JOptionPane.showConfirmDialog(
+        //Confere se algum curso foi selecionado
+        if(tblListaCurso.getSelectedRow() != -1) {
+            //Abre janela de confirmação para remoção do curso selecionado
+            int resposta = JOptionPane.showConfirmDialog(
                 null, 
                 "Deseja apagar o curso selecionado?", 
                 "Remover curso",
                 JOptionPane.YES_NO_OPTION
-        );
+            );
         
-        //Caso a resposta seja sim, remove o curso do banco de dados
-        if(resposta == JOptionPane.YES_OPTION) {
+            //Caso a resposta seja sim, remove o curso do banco de dados
+            if(resposta == JOptionPane.YES_OPTION) {
+                //Recebe o valor do id selecionado pelo usuário
+                Long id = (Long) tblListaCurso.getValueAt(tblListaCurso.getSelectedRow(), 1);
             
+                //Procura o curso selecionado pelo id no banco de dados e deleta
+                CursoIDao cursoDao = new CursoDao();
+                cursoDao.delete(cursoDao.findById(id));
+            
+                //Atualiza a tabela
+                carregarTabela();
+            
+            }
+        } else { //Mensagem que aparece se nenhum curso tiver sido selecionado
+            JOptionPane.showMessageDialog(
+                    null, 
+                    "Selecione um curso da tabela"
+            );
         }
     }//GEN-LAST:event_btnRemoverCursoActionPerformed
 
     private void btnCadastrarCursoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCadastrarCursoActionPerformed
         //Abre a janela de cadastro do curso ao clicar no botão btnCadastrarCurso
-        CursoCadastrar cursoCadastrar = new CursoCadastrar();
+        CursoCadastrar cursoCadastrar = new CursoCadastrar(this);
         cursoCadastrar.setVisible(true);
     }//GEN-LAST:event_btnCadastrarCursoActionPerformed
 
-    private void carregarTabela() {
-        String url = "jdbc:mysql://localhost:3306/gerenciamento_curso";
-        String usuario = "root";
-        String senha = "01100";
-        
-        //tblListaCurso.setEnabled(false);
+    private void btnEditarCursoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarCursoActionPerformed
+        // Verifica se um curso foi selecionado
+        if(tblListaCurso.getSelectedRow() != -1) {
+            //Guarda o id do curso selecionado e envia para a tela cursoEditar
+            Long id = (Long) tblListaCurso.getValueAt(tblListaCurso.getSelectedRow(), 1);
+            CursoEditar cursoEditar = new CursoEditar(this, id);
+            cursoEditar.setVisible(true);
+            
+        } else { //Mensagem que aparece se nenhum curso tiver sido selecionado
+            JOptionPane.showMessageDialog(
+                    null, 
+                    "Selecione um curso da tabela"
+            );
+        }
+    }//GEN-LAST:event_btnEditarCursoActionPerformed
+
+    private void txtBuscarKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtBuscarKeyReleased
         DefaultTableModel tabela = (DefaultTableModel) tblListaCurso.getModel();
         tabela.setNumRows(0);
         
-        tblListaCurso.getColumnModel().getColumn(0);
-        tblListaCurso.getColumnModel().getColumn(1);
-        tblListaCurso.getColumnModel().getColumn(2);
+        CursoIDao cursoDao = new CursoDao();
         
         try {
-            Connection conexao = DriverManager.getConnection(url, usuario, senha);
-            PreparedStatement pstm;
-            ResultSet rs;
-            
-            pstm = conexao.prepareStatement("select * from cursos;");
-            rs = pstm.executeQuery();
-            
-            while(rs.next()) {
-                tabela.addRow(new Object[]{
-                    rs.getString(4),
-                    rs.getString(3),
-                    rs.getString(2)
-                });
+            for(Curso curso : cursoDao.findAll()) {
+                if(curso.getNome().toLowerCase().contains(txtBuscar.getText().toLowerCase())) {
+                    tabela.addRow(new Object[]{
+                        curso.getNome(),
+                        curso.getId(),
+                        curso.getCodigoCurso(),
+                        curso.isAtivo() ? "ATIVO" : "INATIVO"
+                    }); 
+                }
             }
-            
-            rs.close();
-            pstm.close();
-            conexao.close();
-            
-        } catch(SQLException ErroListar) {
-            JOptionPane.showMessageDialog(null, "Erro ao carregar a tabela: " + ErroListar, "ERRO", JOptionPane.ERROR);
-        }   
+        } catch(Exception ErroListar) {
+            JOptionPane.showMessageDialog(
+                    null, 
+                    "ERRO AO CARREGAR A TABELA\n" + ErroListar, 
+                    "ERRO", 
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }//GEN-LAST:event_txtBuscarKeyReleased
+
+    public void carregarTabela() {
+        DefaultTableModel tabela = (DefaultTableModel) tblListaCurso.getModel();
+        tabela.setNumRows(0);
+        
+        CursoIDao cursoDao = new CursoDao();
+        
+        try {
+            for(Curso curso : cursoDao.findAll()) {
+                tabela.addRow(new Object[]{
+                    curso.getNome(),
+                    curso.getId(),
+                    curso.getCodigoCurso(),
+                    curso.isAtivo() ? "ATIVO" : "INATIVO"
+                });
+            }   
+        } catch(Exception ErroListar) {
+            JOptionPane.showMessageDialog(
+                    null, 
+                    "ERRO AO CARREGAR A TABELA\n" + ErroListar, 
+                    "ERRO", 
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
     
     /**
