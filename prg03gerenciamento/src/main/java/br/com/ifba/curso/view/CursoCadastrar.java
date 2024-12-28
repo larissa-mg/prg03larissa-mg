@@ -3,6 +3,7 @@ package br.com.ifba.curso.view;
 import br.com.ifba.curso.dao.CursoDao;
 import br.com.ifba.curso.dao.CursoIDao;
 import br.com.ifba.curso.entity.Curso;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -71,19 +72,29 @@ public class CursoCadastrar extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
-        //Insere as informações da tela de cadastro no curso
-        Curso curso = new Curso();
-        curso.setNome(txtNome.getText());
-        curso.setCodigoCurso(txtCodCurso.getText());
-        curso.setAtivo((comboStatus.getSelectedItem() == "ATIVO"));
+        //Verifica se todos os campos estão preenchidos
+        if(txtNome.getText().isEmpty() || txtCodCurso.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    null, 
+                    "PREENCHA TODOS OS CAMPOS\n", 
+                    "ERRO", 
+                    JOptionPane.ERROR_MESSAGE
+            );
+        } else {
+            //Insere as informações da tela de cadastro no curso
+            Curso curso = new Curso();
+            curso.setNome(txtNome.getText());
+            curso.setCodigoCurso(txtCodCurso.getText());
+            curso.setAtivo((comboStatus.getSelectedItem() == "ATIVO"));
         
-        //Salva as informações do curso no banco de dados
-        CursoIDao cursoDao = new CursoDao();
-        cursoDao.save(curso);
+            //Salva as informações do curso no banco de dados
+            CursoIDao cursoDao = new CursoDao();
+            cursoDao.save(curso);
         
-        //Atualiza a tabela de cursos e fecha a tela de cadastro
-        cursoListar.carregarTabela();
-        this.dispose();
+            //Atualiza a tabela de cursos e fecha a tela de cadastro
+            cursoListar.carregarTabela();
+            this.dispose();
+        }
     }//GEN-LAST:event_btnSalvarActionPerformed
 
     /**
