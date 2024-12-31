@@ -1,8 +1,9 @@
 package br.com.ifba.curso.view;
 
-import br.com.ifba.curso.dao.CursoDao;
-import br.com.ifba.curso.dao.CursoIDao;
+import br.com.ifba.curso.controller.CursoController;
+import br.com.ifba.curso.controller.CursoIController;
 import br.com.ifba.curso.entity.Curso;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -11,6 +12,7 @@ import br.com.ifba.curso.entity.Curso;
 public class CursoEditar extends javax.swing.JFrame {
     private final CursoListar cursoListar;
     private final Long id;
+    private final CursoIController cursoController = new CursoController();
     
     /**
      * Creates new form CursoEditar
@@ -77,8 +79,7 @@ public class CursoEditar extends javax.swing.JFrame {
     //Caarrega as informações do curso a ser editado ao abrir a tela
     private void carregarCurso() {
         Curso curso;
-        CursoIDao c = new CursoDao();
-        curso = c.findById(id);
+        curso = cursoController.findById(id);
         
         txtNome.setText(curso.getNome());
         txtCodCurso.setText(curso.getCodigoCurso());
@@ -86,22 +87,31 @@ public class CursoEditar extends javax.swing.JFrame {
     }
     
     private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
-        //Insere as informações da tela de edição no curso
-        Curso curso = new Curso();
-        curso.setNome(txtNome.getText());
-        curso.setCodigoCurso(txtCodCurso.getText());
-        curso.setId(id);
+        //Verifica se todos os campos estão preenchidos
+        if(txtNome.getText().isEmpty() || txtCodCurso.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    null, 
+                    "PREENCHA TODOS OS CAMPOS\n", 
+                    "ERRO", 
+                    JOptionPane.ERROR_MESSAGE
+            );
+        } else {
+            //Insere as informações da tela de edição no curso
+            Curso curso = new Curso();
+            curso.setNome(txtNome.getText());
+            curso.setCodigoCurso(txtCodCurso.getText());
+            curso.setId(id);
 
-        //Verifica a opção escolhida pelo usuário e coloca o curso como ativo ou inativo
-        curso.setAtivo((comboStatus.getSelectedItem() == "ATIVO"));
+            //Verifica a opção escolhida pelo usuário e coloca o curso como ativo ou inativo
+            curso.setAtivo((comboStatus.getSelectedItem() == "ATIVO"));
 
-        //Salva a edição no banco de dados
-        CursoIDao cursoDao = new CursoDao();
-        cursoDao.update(curso);
+            //Salva a edição no banco de dados
+            cursoController.update(curso);
 
-        //Atualiza a tabela de cursos e fecha a tela de edição
-        cursoListar.carregarTabela();
-        this.dispose();
+            //Atualiza a tabela de cursos e fecha a tela de edição
+            cursoListar.carregarTabela();
+            this.dispose();
+        }
     }//GEN-LAST:event_btnEditarActionPerformed
 
     /**

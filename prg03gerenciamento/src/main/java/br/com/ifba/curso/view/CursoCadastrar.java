@@ -1,7 +1,7 @@
 package br.com.ifba.curso.view;
 
-import br.com.ifba.curso.dao.CursoDao;
-import br.com.ifba.curso.dao.CursoIDao;
+import br.com.ifba.curso.controller.CursoController;
+import br.com.ifba.curso.controller.CursoIController;
 import br.com.ifba.curso.entity.Curso;
 import javax.swing.JOptionPane;
 
@@ -11,6 +11,7 @@ import javax.swing.JOptionPane;
  */
 public class CursoCadastrar extends javax.swing.JFrame {
     private final CursoListar cursoListar;
+    private final CursoIController cursoController = new CursoController();
     
     /**
      * Creates new form CursoCadastrar
@@ -88,8 +89,7 @@ public class CursoCadastrar extends javax.swing.JFrame {
             curso.setAtivo((comboStatus.getSelectedItem() == "ATIVO"));
         
             //Salva as informações do curso no banco de dados
-            CursoIDao cursoDao = new CursoDao();
-            cursoDao.save(curso);
+            cursoController.save(curso);
         
             //Atualiza a tabela de cursos e fecha a tela de cadastro
             cursoListar.carregarTabela();

@@ -1,7 +1,7 @@
 package br.com.ifba.curso.view;
 
-import br.com.ifba.curso.dao.CursoDao;
-import br.com.ifba.curso.dao.CursoIDao;
+import br.com.ifba.curso.controller.CursoController;
+import br.com.ifba.curso.controller.CursoIController;
 import br.com.ifba.curso.entity.Curso;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -11,6 +11,7 @@ import javax.swing.table.DefaultTableModel;
  * @author larissa
  */
 public class CursoListar extends javax.swing.JFrame {
+    private final CursoIController cursoController = new CursoController();
     
     /**
      * Creates new form CursoListar
@@ -127,12 +128,10 @@ public class CursoListar extends javax.swing.JFrame {
                 Long id = (Long) tblListaCurso.getValueAt(tblListaCurso.getSelectedRow(), 1);
             
                 //Procura o curso selecionado pelo id no banco de dados e deleta
-                CursoIDao cursoDao = new CursoDao();
-                cursoDao.delete(cursoDao.findById(id));
+                cursoController.delete(cursoController.findById(id));
             
                 //Atualiza a tabela
                 carregarTabela();
-            
             }
         } else { //Mensagem que aparece se nenhum curso tiver sido selecionado
             JOptionPane.showMessageDialog(
@@ -145,6 +144,7 @@ public class CursoListar extends javax.swing.JFrame {
     private void btnCadastrarCursoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCadastrarCursoActionPerformed
         //Abre a janela de cadastro do curso ao clicar no botão btnCadastrarCurso
         CursoCadastrar cursoCadastrar = new CursoCadastrar(this);
+        cursoCadastrar.setDefaultCloseOperation(CursoCadastrar.DISPOSE_ON_CLOSE);
         cursoCadastrar.setVisible(true);
     }//GEN-LAST:event_btnCadastrarCursoActionPerformed
 
@@ -154,6 +154,7 @@ public class CursoListar extends javax.swing.JFrame {
             //Guarda o id do curso selecionado e envia para a tela cursoEditar
             Long id = (Long) tblListaCurso.getValueAt(tblListaCurso.getSelectedRow(), 1);
             CursoEditar cursoEditar = new CursoEditar(this, id);
+            cursoEditar.setDefaultCloseOperation(CursoEditar.DISPOSE_ON_CLOSE);
             cursoEditar.setVisible(true);
             
         } else { //Mensagem que aparece se nenhum curso tiver sido selecionado
@@ -165,14 +166,16 @@ public class CursoListar extends javax.swing.JFrame {
     }//GEN-LAST:event_btnEditarCursoActionPerformed
 
     private void txtBuscarKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtBuscarKeyReleased
+        //Obtém o modelo de dados da tabela (DefaultTableModel) associada ao componente tblListaCurso
         DefaultTableModel tabela = (DefaultTableModel) tblListaCurso.getModel();
+        //Limpa todas as linhas da tabela antes de adicionar os novos resultados da busca
         tabela.setNumRows(0);
-        
-        CursoIDao cursoDao = new CursoDao();
-        
-        try {
-            for(Curso curso : cursoDao.findAll()) {
-                if(curso.getNome().toLowerCase().contains(txtBuscar.getText().toLowerCase())) {
+
+        try { //Itera sobre todos os cursos obtidos
+            for (Curso curso : cursoController.findAll()) {
+                //Verifica se o nome do curso contém o texto digitado no campo de busca (ignorando maiúsculas/minúsculas)
+                if (curso.getNome().toLowerCase().contains(txtBuscar.getText().toLowerCase())) {
+                    //Se o nome do curso corresponder, adiciona uma nova linha na tabela com as informações do curso
                     tabela.addRow(new Object[]{
                         curso.getNome(),
                         curso.getId(),
@@ -181,24 +184,26 @@ public class CursoListar extends javax.swing.JFrame {
                     }); 
                 }
             }
-        } catch(Exception ErroListar) {
+        } catch (Exception ErroListar) {
+            //Caso ocorra algum erro ao carregar os dados, exibe uma mensagem de erro
             JOptionPane.showMessageDialog(
-                    null, 
-                    "ERRO AO CARREGAR A TABELA\n" + ErroListar, 
-                    "ERRO", 
+                    null,
+                    "ERRO AO CARREGAR A TABELA\n" + ErroListar,
+                    "ERRO",
                     JOptionPane.ERROR_MESSAGE
-            );
+            );  
         }
     }//GEN-LAST:event_txtBuscarKeyReleased
 
     public void carregarTabela() {
+        //Obtém o modelo de dados da tabela (DefaultTableModel) associada ao componente tblListaCurso
         DefaultTableModel tabela = (DefaultTableModel) tblListaCurso.getModel();
+        //Limpa todas as linhas da tabela antes de adicionar os novos resultados da busca
         tabela.setNumRows(0);
         
-        CursoIDao cursoDao = new CursoDao();
-        
-        try {
-            for(Curso curso : cursoDao.findAll()) {
+        try { //Itera sobre todos os cursos obtidos
+            for(Curso curso : cursoController.findAll()) {
+                //Adiciona uma nova linha na tabela com as informações do curso
                 tabela.addRow(new Object[]{
                     curso.getNome(),
                     curso.getId(),
@@ -207,6 +212,7 @@ public class CursoListar extends javax.swing.JFrame {
                 });
             }   
         } catch(Exception ErroListar) {
+            //Caso ocorra algum erro ao carregar os dados, exibe uma mensagem de erro
             JOptionPane.showMessageDialog(
                     null, 
                     "ERRO AO CARREGAR A TABELA\n" + ErroListar, 
